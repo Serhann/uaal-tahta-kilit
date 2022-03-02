@@ -35,7 +35,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile(path.join(__dirname, "../index.html"));
+  mainWindow.loadFile(path.join(__dirname, "../assets/index.html"));
 }
 
 app.whenReady().then(async () => {
@@ -86,7 +86,7 @@ ipcMain.on('restart_app', () => {
 const checkStatuses = async () => {
   console.log("Checking statuses...");
 
-  const response = await fetch('http://localhost:3000/');
+  const response = await fetch('http://10.0.0.10:3000/');
 
   const statuses: Statuses = await response.json();
   console.log("statuses", statuses);

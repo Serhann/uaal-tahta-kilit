@@ -2,7 +2,7 @@
   "name": "uaal-tahta-kilit",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/main.js",
+  "main": "./dist/main.js",
   "scripts": {
     "build:ts": "tsc",
     "watch": "tsc -w",
@@ -29,5 +29,23 @@
     "electron-fetch": "^1.7.4",
     "electron-updater": "^4.6.5",
     "sudo-prompt": "^9.2.1"
+  },
+  "build": {
+    "appId": "tr.com.serhanergoren.uaal.tahtakilit",
+    "productName": "UAAL Tahta Kilit",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "guid": "a452c895-224e-48d9-ac8f-2f36e51f9010",
+      "perMachine": true
+    },
+    "files": [
+      "./dist/**/*",
+      "./assets/**/*"
+    ]
   }
 }
