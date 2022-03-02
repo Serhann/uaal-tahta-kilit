@@ -70,10 +70,10 @@ app.whenReady().then(async () => {
   }, 1000);
 })
 
-
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available');
 });
+
 autoUpdater.on('update-downloaded', () => {
   mainWindow.webContents.send('update_downloaded');
 });
@@ -85,7 +85,7 @@ ipcMain.on('restart_app', () => {
 const checkStatuses = async () => {
   console.log("Checking statuses...");
 
-  const response = await fetch('http://10.0.0.10:3000/');
+  const response = await fetch('http://10.0.0.10:3000');
 
   const statuses: Statuses = await response.json();
   console.log("statuses", statuses);
@@ -101,7 +101,7 @@ const checkStatuses = async () => {
         }
       });
 
-      console.log("ok");
+      console.log("okkk");
     } else {
       sudo.exec(`reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\taskmgr.exe" /v "Debugger" /t REG_SZ /d "Hotkey Disabled"`, sudoOptions, (error, stdout, stderr) => {
         if (error) {
