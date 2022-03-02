@@ -63,14 +63,13 @@ app.whenReady().then(async () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })*/
 
+  autoUpdater.checkForUpdatesAndNotify();
+
   checkInterval = setInterval(async () => {
     await checkStatuses();
   }, 1000);
 })
 
-mainWindow.once('ready-to-show', () => {
-  autoUpdater.checkForUpdatesAndNotify();
-});
 
 autoUpdater.on('update-available', () => {
   mainWindow.webContents.send('update_available');

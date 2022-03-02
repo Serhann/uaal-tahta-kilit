@@ -1,13 +1,13 @@
 {
   "name": "uaal-tahta-kilit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
-  "main": "./dist/main.js",
+  "main": "./build/main.js",
   "scripts": {
     "build:ts": "tsc",
     "watch": "tsc -w",
     "lint": "eslint -c .eslintrc --ext .ts ./src",
-    "start": "yarn build && electron ./dist/main.js",
+    "start": "yarn build && electron ./build/main.js",
     "build": "yarn build:ts && electron-builder build --win --publish never",
     "deploy": "yarn build:ts && electron-builder build --win --publish always"
   },
@@ -49,7 +49,7 @@
       "perMachine": true
     },
     "files": [
-      "./dist/**/*",
+      "./build/**/*",
       "./assets/**/*"
     ]
   }
