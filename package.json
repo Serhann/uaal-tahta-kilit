@@ -34,7 +34,8 @@
     "publish": [{
       "provider": "github",
       "owner": "Serhann",
-      "repo": "uaal-tahta-kilit"
+      "repo": "uaal-tahta-kilit",
+      "private": true
     }],
     "appId": "tr.com.serhanergoren.uaal.tahtakilit",
     "productName": "UAAL Tahta Kilit",
