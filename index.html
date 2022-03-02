@@ -1,25 +1,112 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    />
-    <meta
-      http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    />
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>, Chromium
-    <span id="chrome-version"></span>, and Electron
-    <span id="electron-version"></span>.
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAAL</title>
 
-    <!-- You can also require other files to run in this process -->
-    <script src="./dist/renderer.js"></script>
-  </body>
+    <style>
+        #notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 200px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    
+    <!-- Tailwind -->
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- background image, size fit -->
+    <img src="assets/background.jpg" class="h-screen w-screen object-cover">
+
+    <!-- title center top -->
+    <div class="text-center text-white text-3xl font-bold" style="position: absolute; top: 50px; left: 50%; transform: translate(-50%, 0);">
+        ANKARA / ETİMESGUT
+        <br>
+        UFUK ARSLAN ANADOLU LİSESİ
+    </div>
+
+    <!-- QR Code center -->
+    <div class="text-center text-white text-2xl font-bold" style="position: absolute; top: 350px; left: 50%; transform: translate(-50%, 0);">
+        <div id="qrcode" alt="QR Code"></div>
+    </div>
+
+    <!-- Bottom Text -->
+    <div class="text-center text-white text-3xl font-bold" style="position: absolute; bottom: 50px; left: 50%; transform: translate(-50%, 0);">
+        TAHYAYI AÇMAK İÇİN KAREKODU OKUTUN
+        
+        <!-- Version Text inline -->
+        <div class="text-base text-gray-500">
+            version: <div id="version" class="inline"></div> | made with <span class="text-red-500">❤</span> by github.com/Serhann
+        </div>
+    </div>
+
+    <div id="notification" class="hidden">
+        <p id="message"></p>
+        <button id="close-button" onClick="closeNotification()">
+          Close
+        </button>
+        <button id="restart-button" onClick="restartApp()" class="hidden">
+          Restart
+        </button>
+    </div>
+</body>
+
+<script type="text/javascript">
+    setTimeout(function(){
+        var qrcode = new QRCode("qrcode", {
+            text: "https://serhanergoren.com.tr",
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+        });
+    }, 1000);
+
+    const { ipcRenderer } = require('electron');
+    const version = document.getElementById('version');
+    
+    ipcRenderer.send('app_version');
+    ipcRenderer.on('app_version', (event, arg) => {
+        ipcRenderer.removeAllListeners('app_version');
+        version.innerText = arg.version;
+    });
+
+    const notification = document.getElementById('notification');
+    const message = document.getElementById('message');
+    const restartButton = document.getElementById('restart-button');
+    
+    ipcRenderer.on('update_available', () => {
+        ipcRenderer.removeAllListeners('update_available');
+        message.innerText = 'A new update is available. Downloading now...';
+        notification.classList.remove('hidden');
+    });
+    
+    ipcRenderer.on('update_downloaded', () => {
+        ipcRenderer.removeAllListeners('update_downloaded');
+        message.innerText = 'Update Downloaded. It will be installed on restart. Restart now?';
+        restartButton.classList.remove('hidden');
+        notification.classList.remove('hidden');
+    });
+
+    function closeNotification() {
+        notification.classList.add('hidden');
+    }
+    
+    function restartApp() {
+        ipcRenderer.send('restart_app');
+    }
+</script>
+
 </html>
