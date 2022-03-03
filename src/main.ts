@@ -3,6 +3,7 @@ import * as path from "path";
 import * as sudo from "sudo-prompt";
 import fetch from "electron-fetch";
 import { autoUpdater } from "electron-updater";
+import log from "electron-log";
 
 type Statuses = {
   kiosk: boolean,
@@ -63,6 +64,9 @@ app.whenReady().then(async () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })*/
 
+  autoUpdater.logger = log;
+  log.transports.file.level = "info";
+
   autoUpdater.checkForUpdatesAndNotify();
 
   checkInterval = setInterval(async () => {
@@ -76,6 +80,9 @@ autoUpdater.on('update-available', () => {
 
 autoUpdater.on('update-downloaded', () => {
   mainWindow.webContents.send('update_downloaded');
+  setTimeout(() => {
+    autoUpdater.quitAndInstall();
+  }, 5000);
 });
 
 ipcMain.on('restart_app', () => {
