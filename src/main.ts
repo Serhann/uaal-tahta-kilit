@@ -14,6 +14,7 @@ const autoLauncher = new AutoLaunch({
 type Statuses = {
   kiosk: boolean,
   taskManager: boolean,
+  taskBar: boolean,
 }
 
 var sudoOptions = {
@@ -24,6 +25,7 @@ var mainWindow: BrowserWindow;
 var currentStatuses: Statuses = {
   taskManager: false,
   kiosk: false,
+  taskBar: true,
 }
 
 function createWindow() {
@@ -43,6 +45,10 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, "../assets/index.html"));
+
+  mainWindow.on('close', async e => {
+    e.preventDefault()
+  })
 }
 
 app.whenReady().then(async () => {
@@ -144,10 +150,36 @@ const checkStatuses = async () => {
     mainWindow.setAlwaysOnTop(false);
     // hide
     mainWindow.hide();
+
+    if (!currentStatuses.taskBar) {
+      sudo.exec(`powershell -command "&{$p='HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3';$v=(Get-ItemProperty -Path $p).Settings;$v[8]=3;&Set-ItemProperty -Path $p -Name Settings -Value $v;&Stop-Process -f -ProcessName explorer}"`, sudoOptions, (error, stdout, stderr) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(stdout);
+          console.log(stderr);
+        }
+      });
+
+      currentStatuses.taskBar = true;
+    }
   } else {
     if (!mainWindow.isVisible()) {
       mainWindow.show();
       mainWindow.focus();
+    }
+
+    if (currentStatuses.taskBar) {
+      sudo.exec(`powershell -command "&{$p='HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3';$v=(Get-ItemProperty -Path $p).Settings;$v[8]=2;&Set-ItemProperty -Path $p -Name Settings -Value $v;&Stop-Process -f -ProcessName explorer}"`, sudoOptions, (error, stdout, stderr) => {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(stdout);
+          console.log(stderr);
+        }
+      });
+
+      currentStatuses.taskBar = false;
     }
 
     mainWindow.setKiosk(statuses.kiosk)
@@ -156,12 +188,12 @@ const checkStatuses = async () => {
 
   console.log(statuses)
 
-  currentStatuses = statuses;
+  currentStatuses = {
+    taskManager: statuses.taskManager,
+    kiosk: statuses.kiosk,
+    taskBar: currentStatuses.taskBar,
+  };
 };
-
-mainWindow.on('close', async e => {
-  e.preventDefault()
-})
 
 app.on('before-quit', e => {
   e.preventDefault();
