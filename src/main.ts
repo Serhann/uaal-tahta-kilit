@@ -5,6 +5,12 @@ import fetch from "electron-fetch";
 import { autoUpdater } from "electron-updater";
 import log from "electron-log";
 
+import AutoLaunch = require('auto-launch');
+
+const autoLauncher = new AutoLaunch({
+  name: 'Anahtar'
+});
+
 type Statuses = {
   kiosk: boolean,
   taskManager: boolean,
@@ -71,6 +77,14 @@ app.whenReady().then(async () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })*/
 
+  autoLauncher.isEnabled()
+    .then((isEnabled) => {
+      if (!isEnabled) autoLauncher.enable();
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+
   autoUpdater.logger = log;
   log.transports.file.level = "info";
 
@@ -133,6 +147,7 @@ const checkStatuses = async () => {
   } else {
     if (!mainWindow.isVisible()) {
       mainWindow.show();
+      mainWindow.focus();
     }
 
     mainWindow.setKiosk(statuses.kiosk)
