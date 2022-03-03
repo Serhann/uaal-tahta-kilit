@@ -145,13 +145,16 @@ const checkStatuses = async () => {
     }
   }
 
-  if (!statuses.kiosk) {
-    mainWindow.setKiosk(false);
-    mainWindow.setAlwaysOnTop(false);
-    // hide
-    mainWindow.hide();
+  let tb: boolean;
+
+  if (statuses.kiosk === false) {    
+    if (mainWindow.isVisible()) mainWindow.hide();
+    if (mainWindow.isKiosk()) mainWindow.setKiosk(false);
+    if (mainWindow.isAlwaysOnTop()) mainWindow.setAlwaysOnTop(false); 
 
     if (!currentStatuses.taskBar) {
+      tb = true;
+
       sudo.exec(`powershell -command "&{$p='HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3';$v=(Get-ItemProperty -Path $p).Settings;$v[8]=3;&Set-ItemProperty -Path $p -Name Settings -Value $v;&Stop-Process -f -ProcessName explorer}"`, sudoOptions, (error, stdout, stderr) => {
         if (error) {
           console.log(error);
@@ -160,16 +163,18 @@ const checkStatuses = async () => {
           console.log(stderr);
         }
       });
-
-      currentStatuses.taskBar = true;
     }
-  } else {
+  } else if (statuses.kiosk === true) {
+    if (!mainWindow.isKiosk()) mainWindow.setKiosk(true);
+    if (!mainWindow.isAlwaysOnTop()) mainWindow.setAlwaysOnTop(true);
     if (!mainWindow.isVisible()) {
       mainWindow.show();
       mainWindow.focus();
     }
 
     if (currentStatuses.taskBar) {
+      tb = false;
+
       sudo.exec(`powershell -command "&{$p='HKCU:SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StuckRects3';$v=(Get-ItemProperty -Path $p).Settings;$v[8]=2;&Set-ItemProperty -Path $p -Name Settings -Value $v;&Stop-Process -f -ProcessName explorer}"`, sudoOptions, (error, stdout, stderr) => {
         if (error) {
           console.log(error);
@@ -178,12 +183,7 @@ const checkStatuses = async () => {
           console.log(stderr);
         }
       });
-
-      currentStatuses.taskBar = false;
     }
-
-    mainWindow.setKiosk(statuses.kiosk)
-    mainWindow.setAlwaysOnTop(statuses.kiosk)
   }
 
   console.log(statuses)
@@ -191,7 +191,7 @@ const checkStatuses = async () => {
   currentStatuses = {
     taskManager: statuses.taskManager,
     kiosk: statuses.kiosk,
-    taskBar: currentStatuses.taskBar,
+    taskBar: tb,
   };
 };
 
