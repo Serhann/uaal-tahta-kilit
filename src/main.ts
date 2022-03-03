@@ -82,14 +82,11 @@ app.whenReady().then(async () => {
 })
 
 autoUpdater.on('update-available', () => {
-  mainWindow.webContents.send('update_available');
+  //mainWindow.webContents.send('update_available');
 });
 
 autoUpdater.on('update-downloaded', () => {
-  mainWindow.webContents.send('update_downloaded');
-  setTimeout(() => {
-    autoUpdater.quitAndInstall();
-  }, 5000);
+  autoUpdater.quitAndInstall();
 });
 
 ipcMain.on('restart_app', () => {
@@ -134,6 +131,10 @@ const checkStatuses = async () => {
     // hide
     mainWindow.hide();
   } else {
+    if (!mainWindow.isVisible()) {
+      mainWindow.show();
+    }
+
     mainWindow.setKiosk(statuses.kiosk)
     mainWindow.setAlwaysOnTop(statuses.kiosk)
   }
@@ -143,8 +144,16 @@ const checkStatuses = async () => {
   currentStatuses = statuses;
 };
 
-app.on('will-quit', event => {
-  clearInterval(checkInterval);
+mainWindow.on('close', async e => {
+  e.preventDefault()
+})
+
+app.on('before-quit', e => {
+  e.preventDefault();
+})
+
+app.on('will-quit', e => {
+  e.preventDefault();
 })
 
 ipcMain.on('app_version', (event) => {
