@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen, ipcMain } from "electron";
+import { app, BrowserWindow, screen, ipcMain, powerMonitor, powerSaveBlocker } from "electron";
 import * as path from "path";
 import * as sudo from "sudo-prompt";
 import fetch from "electron-fetch";
@@ -43,6 +43,13 @@ app.whenReady().then(async () => {
   sudo.exec(`reg add "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\taskmgr.exe" /v "Debugger" /t REG_SZ /d "Hotkey Disabled"`, sudoOptions);
 
   createWindow();
+
+  powerMonitor.on("lock-screen", () => {
+    powerSaveBlocker.start("prevent-display-sleep");
+  });
+  powerMonitor.on("suspend", () => {
+    powerSaveBlocker.start("prevent-app-suspension");
+  });
 
   let displays = screen.getAllDisplays()
   let externalDisplay = displays.find((display) => {
