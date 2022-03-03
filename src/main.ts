@@ -23,7 +23,7 @@ var currentStatuses: Statuses = {
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    kiosk: false,
+    kiosk: true,
     alwaysOnTop: true,
     skipTaskbar: true,
     autoHideMenuBar: true,
@@ -128,9 +128,14 @@ const checkStatuses = async () => {
     }
   }
 
-  if (statuses.kiosk !== currentStatuses.kiosk) {
-    mainWindow.setKiosk(!statuses.kiosk)
-    mainWindow.setAlwaysOnTop(!statuses.kiosk)
+  if (!statuses.kiosk) {
+    mainWindow.setKiosk(false);
+    mainWindow.setAlwaysOnTop(false);
+    // hide
+    mainWindow.hide();
+  } else {
+    mainWindow.setKiosk(statuses.kiosk)
+    mainWindow.setAlwaysOnTop(statuses.kiosk)
   }
 
   console.log(statuses)
